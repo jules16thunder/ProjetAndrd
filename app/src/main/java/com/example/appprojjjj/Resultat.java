@@ -3,9 +3,11 @@ package com.example.appprojjjj;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,49 +28,56 @@ public class Resultat extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resultat);
 
-        //Bundle extras = getIntent().getExtras();
-        //String ville = new String(extras.getString("ville"));
 
 
-        String url = new String("http://api.openweathermap.org/data/2.5/weather?q=Paris&appid=82406a41f668a93dcb6e31246defec67");
+
         AsyncWeatherJSONData task = new AsyncWeatherJSONData();
-        task.execute(url);
+        task.execute();
     }
 
     @SuppressLint("StaticFieldLeak")
     private class AsyncWeatherJSONData extends AsyncTask<String, Void, JSONObject> {
         @Override
-
         protected JSONObject doInBackground(String... strings) {
             TextView affichage = findViewById(R.id.textView3);
+            Bundle extras = getIntent().getExtras();
+            String ville = new String(extras.getString("ville"));
             URL url = null;
             HttpURLConnection urlConnection = null;
             String result = null;
-            try {
-                url = new URL("https://api.openweathermap.org/data/2.5/weather?q=Paris&appid=82406a41f668a93dcb6e31246defec67");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            try {
-                urlConnection = (HttpURLConnection) url.openConnection(); // Open
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             InputStream in = null;
+
             try {
+                url = new URL("https://api.openweathermap.org/data/2.5/weather?q="+ville+"&appid=82406a41f668a93dcb6e31246defec67");
+                urlConnection = (HttpURLConnection) url.openConnection(); // Open
                 in = new BufferedInputStream(urlConnection.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            if (in==null){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Cette ville n'existe pas";
+                        int duration = Toast.LENGTH_LONG;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                });
+
+                return null;
             }
             result = readStream(in); // Read stream
             urlConnection.disconnect();
             JSONObject json = null;
             try {
                 json = new JSONObject(result);
+                affichage.setText(json.getString("name"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            affichage.setText("ca avance");
             return json; // returns the result
         }
 

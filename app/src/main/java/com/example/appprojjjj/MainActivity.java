@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Button button = (Button)  findViewById(R.id.button1);
-
         button.setOnClickListener(onClickListener);
     }
 
@@ -29,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
                     TextView temp = findViewById(R.id.textView);
                     TextView ville = findViewById(R.id.ville);
-                    temp.setText(ville.getText().toString());
+
 
                     Intent CallActivityInformation = new Intent(getApplicationContext(), Resultat.class);
 

@@ -12,13 +12,15 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:text="Bienvenue sur votre appli météo"
+
+        />
 
     <EditText
         android:id="@+id/ville"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Name" />
+        android:hint="Nom de la ville" />
 
     <Button
         android:id="@+id/button1"
