@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,6 +37,10 @@ public class Resultat extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_resultat);
+        Button returnButton = (Button) findViewById(R.id.buttonR1);
+        returnButton.setOnClickListener(onClickListener2);
+
+
 
 
         AsyncWeatherJSONData task = new AsyncWeatherJSONData();
@@ -46,19 +52,27 @@ public class Resultat extends AppCompatActivity {
                 JSONArray weather = lejson.getJSONArray("weather");
                 JSONObject weather0 = (JSONObject) weather.get(0);
                 icon = weather0.getString("icon");
+                task2.execute(icon);
             }
             else{
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Context context = getApplicationContext();
-                        CharSequence text = "Cette ville n'existe pas";
+                        CharSequence text = "Désolé, cette ville n'existe pas ou n'est pas connue";
                         int duration = Toast.LENGTH_LONG;
 
                         Toast toast = Toast.makeText(context, text, duration);
                         toast.show();
                     }
                 });
+                TextView vue = findViewById(R.id.temperature);
+                Bundle extras = getIntent().getExtras();
+                String ville = new String(extras.getString("ville"));
+                vue.setText(ville);
+                Intent CallMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(CallMainActivity);
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -68,8 +82,19 @@ public class Resultat extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        task2.execute(icon);
+
     }
+
+    private View.OnClickListener onClickListener2 = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            Intent CallMainActivity = new Intent(getApplicationContext(), MainActivity.class);
+
+            startActivity(CallMainActivity);
+
+        }
+    };
 
     @SuppressLint("StaticFieldLeak")
     private class AsyncWeatherJSONData extends AsyncTask<String, Void, JSONObject> {
@@ -82,7 +107,6 @@ public class Resultat extends AppCompatActivity {
             String mesure=prefs.getString(SHARED_PREF_USER_INFO, "Metric");
 
             TextView temperatureview = findViewById(R.id.temperature);
-            TextView cityview = findViewById(R.id.city);
             ImageView image = findViewById(R.id.image);
             Bundle extras = getIntent().getExtras();
             String ville = new String(extras.getString("ville"));
@@ -99,20 +123,6 @@ public class Resultat extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (in == null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Context context = getApplicationContext();
-                        CharSequence text = "Cette ville n'existe pas";
-                        int duration = Toast.LENGTH_LONG;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    }
-                });
-
-
-
                 return null;
             }
             result = readStream(in); // Read stream
@@ -129,11 +139,11 @@ public class Resultat extends AppCompatActivity {
                 String icon = weather0.getString("icon");
 
 
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        temperatureview.setText(tempe);
-                        cityview.setText(cityname);
+                        temperatureview.setText("La température dans la ville de " + cityname + " est de " + tempe);
                     }
                 });
 
@@ -166,7 +176,6 @@ public class Resultat extends AppCompatActivity {
 
             String icon = strings[0];
             ImageView image = (ImageView) findViewById(R.id.image);
-            TextView test  = findViewById(R.id.textView5);
             URL url = null;
             HttpURLConnection urlConnection = null;
             Bitmap bm = null;
@@ -183,18 +192,6 @@ public class Resultat extends AppCompatActivity {
                 e.printStackTrace();
             }
             if (in == null) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Context context = getApplicationContext();
-                        CharSequence text = "Cette ville n'existe pas";
-                        int duration = Toast.LENGTH_LONG;
-
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
-                    }
-                });
-
                 return null;
             }
             bm = BitmapFactory.decodeStream(in);
@@ -210,7 +207,6 @@ public class Resultat extends AppCompatActivity {
                 @Override
                 public void run() {
                     image.setImageBitmap(finalBm);
-                    test.setText(icon);
                 }
             });
 

@@ -19,11 +19,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Button button = (Button)  findViewById(R.id.button1);
         Button bouton = (Button) findViewById(R.id.button2);
+        Button bouttonquit = (Button) findViewById(R.id.buttonQuit);
         button.setOnClickListener(onClickListener);
         bouton.setOnClickListener(onClickListener);
+        bouttonquit.setOnClickListener(onClickListener);
 
     }
-
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
@@ -41,9 +42,6 @@ public class MainActivity extends AppCompatActivity {
                     CallActivityInformation.putExtra("ville", ville.getText().toString());
                     startActivity(CallActivityInformation);
 
-
-
-
                     break;
 
                 case R.id.button2:
@@ -51,19 +49,15 @@ public class MainActivity extends AppCompatActivity {
                     Intent CallPreferencesActivity = new Intent(getApplicationContext(), PreferencesActivity.class);
                     startActivity(CallPreferencesActivity);
                     break;
+
+                case R.id.buttonQuit:
+
+                    // Code for button Quit click
+                    finish();
+                    break;
             }
-
-
         }
     };
-
-
-
-
-
-
-
-
 }
 
 

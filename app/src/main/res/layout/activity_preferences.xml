@@ -43,4 +43,12 @@
         android:layout_height="wrap_content"
         android:text="TextView" />
 
+    <Button
+        android:id="@+id/buttonR2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Retour au menu principal"
+        android:onClick="onClick"
+        tools:ignore="OnClick"/>
+
 </LinearLayout>
