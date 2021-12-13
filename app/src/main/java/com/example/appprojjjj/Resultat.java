@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,9 +41,25 @@ public class Resultat extends AppCompatActivity {
         AsyncBitmapDownloader task2 = new AsyncBitmapDownloader();
         String icon = null;
         try {
-            JSONArray weather = task.execute().get().getJSONArray("weather");
-            JSONObject weather0 = (JSONObject) weather.get(0);
-            icon = weather0.getString("icon");
+            JSONObject lejson = task.execute().get();
+            if (lejson!=null) {
+                JSONArray weather = lejson.getJSONArray("weather");
+                JSONObject weather0 = (JSONObject) weather.get(0);
+                icon = weather0.getString("icon");
+            }
+            else{
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Cette ville n'existe pas";
+                        int duration = Toast.LENGTH_LONG;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                });
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -56,6 +75,12 @@ public class Resultat extends AppCompatActivity {
     private class AsyncWeatherJSONData extends AsyncTask<String, Void, JSONObject> {
         @Override
         protected JSONObject doInBackground(String... strings) {
+
+            Context context = getApplicationContext();
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            String SHARED_PREF_USER_INFO = "SHARED_PREF_USER_INFO";
+            String mesure=prefs.getString(SHARED_PREF_USER_INFO, "Metric");
+
             TextView temperatureview = findViewById(R.id.temperature);
             TextView cityview = findViewById(R.id.city);
             ImageView image = findViewById(R.id.image);
@@ -67,7 +92,7 @@ public class Resultat extends AppCompatActivity {
             InputStream in = null;
 
             try {
-                url = new URL("https://api.openweathermap.org/data/2.5/weather?q=" + ville + "&appid=82406a41f668a93dcb6e31246defec67&units=metric");
+                url = new URL("https://api.openweathermap.org/data/2.5/weather?q=" + ville + "&appid=82406a41f668a93dcb6e31246defec67&units="+mesure);
                 urlConnection = (HttpURLConnection) url.openConnection(); // Open
                 in = new BufferedInputStream(urlConnection.getInputStream());
             } catch (IOException e) {
@@ -85,6 +110,8 @@ public class Resultat extends AppCompatActivity {
                         toast.show();
                     }
                 });
+
+
 
                 return null;
             }
@@ -154,6 +181,21 @@ public class Resultat extends AppCompatActivity {
                 in = new BufferedInputStream(urlConnection.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+            if (in == null) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Context context = getApplicationContext();
+                        CharSequence text = "Cette ville n'existe pas";
+                        int duration = Toast.LENGTH_LONG;
+
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+                    }
+                });
+
+                return null;
             }
             bm = BitmapFactory.decodeStream(in);
             try {

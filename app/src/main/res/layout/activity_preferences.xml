@@ -2,45 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/acceuil"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".PreferencesActivity">
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bienvenue sur votre appli météo"
-
-        />
-
-    <EditText
-        android:id="@+id/ville"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nom de la ville" />
+        android:text="Choisissez votre unité de mesure préférentielle" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/buttonStandard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Afficher la météo"
+        android:text="Standard (K)"
         android:onClick="onClick"
-        tools:ignore="OnClick" />
+        tools:ignore="OnClick"/>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/buttonMetric"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Choix Unité de mesure"
+        android:text="Metric (°C)"
         android:onClick="onClick"
-        tools:ignore="OnClick"
-        />
+        tools:ignore="OnClick"/>
+
+    <Button
+        android:id="@+id/buttonImperial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Imperial (°F)"
+        android:onClick="onClick"
+        tools:ignore="OnClick"/>
 
     <TextView
-        android:id="@+id/textTest2"
+        android:id="@+id/textTest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView" />
