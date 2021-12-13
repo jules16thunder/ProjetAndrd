@@ -4,11 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +23,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class Resultat extends AppCompatActivity {
 
@@ -29,17 +34,31 @@ public class Resultat extends AppCompatActivity {
         setContentView(R.layout.activity_resultat);
 
 
-
-
         AsyncWeatherJSONData task = new AsyncWeatherJSONData();
-        task.execute();
+        AsyncBitmapDownloader task2 = new AsyncBitmapDownloader();
+        String icon = null;
+        try {
+            JSONArray weather = task.execute().get().getJSONArray("weather");
+            JSONObject weather0 = (JSONObject) weather.get(0);
+            icon = weather0.getString("icon");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        task2.execute(icon);
     }
 
     @SuppressLint("StaticFieldLeak")
     private class AsyncWeatherJSONData extends AsyncTask<String, Void, JSONObject> {
         @Override
         protected JSONObject doInBackground(String... strings) {
-            TextView affichage = findViewById(R.id.textView3);
+            TextView temperatureview = findViewById(R.id.temperature);
+            TextView cityview = findViewById(R.id.city);
+            ImageView image = findViewById(R.id.image);
             Bundle extras = getIntent().getExtras();
             String ville = new String(extras.getString("ville"));
             URL url = null;
@@ -48,13 +67,13 @@ public class Resultat extends AppCompatActivity {
             InputStream in = null;
 
             try {
-                url = new URL("https://api.openweathermap.org/data/2.5/weather?q="+ville+"&appid=82406a41f668a93dcb6e31246defec67");
+                url = new URL("https://api.openweathermap.org/data/2.5/weather?q=" + ville + "&appid=82406a41f668a93dcb6e31246defec67&units=metric");
                 urlConnection = (HttpURLConnection) url.openConnection(); // Open
                 in = new BufferedInputStream(urlConnection.getInputStream());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (in==null){
+            if (in == null) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -74,7 +93,23 @@ public class Resultat extends AppCompatActivity {
             JSONObject json = null;
             try {
                 json = new JSONObject(result);
-                affichage.setText(json.getString("name"));
+                JSONObject main = json.getJSONObject("main");
+                double temp = main.getDouble("temp");
+                String tempe = String.valueOf(temp);
+                String cityname = json.getString("name");
+                JSONArray weather = json.getJSONArray("weather");
+                JSONObject weather0 = (JSONObject) weather.get(0);
+                String icon = weather0.getString("icon");
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        temperatureview.setText(tempe);
+                        cityview.setText(cityname);
+                    }
+                });
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -85,7 +120,7 @@ public class Resultat extends AppCompatActivity {
             try {
                 ByteArrayOutputStream bo = new ByteArrayOutputStream();
                 int i = is.read();
-                while(i != -1) {
+                while (i != -1) {
                     bo.write(i);
                     i = is.read();
                 }
@@ -96,11 +131,52 @@ public class Resultat extends AppCompatActivity {
         }
 
 
+    }
 
+    private class AsyncBitmapDownloader extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... strings) {
+
+            String icon = strings[0];
+            ImageView image = (ImageView) findViewById(R.id.image);
+            TextView test  = findViewById(R.id.textView5);
+            URL url = null;
+            HttpURLConnection urlConnection = null;
+            Bitmap bm = null;
+            try {
+                url = new URL("https://openweathermap.org/img/w/"+icon+".png");
+                urlConnection = (HttpURLConnection) url.openConnection(); // Open
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            InputStream in = null; // Stream
+            try {
+                in = new BufferedInputStream(urlConnection.getInputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            bm = BitmapFactory.decodeStream(in);
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            urlConnection.disconnect();
+
+            Bitmap finalBm = bm;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    image.setImageBitmap(finalBm);
+                    test.setText(icon);
+                }
+            });
+
+            return bm;
+        }
 
 
     }
-
 
 
 }
